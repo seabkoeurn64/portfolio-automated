@@ -7,12 +7,30 @@ const app = express();
 
 app.use(express.json());
 
-// ✅ Secure Configuration
+// ✅ FIXED: Configuration for Vercel
 const CONFIG = {
   TELEGRAM_TOKEN: process.env.TELEGRAM_TOKEN || '8406477017:AAGpDTbR6ORMQ7a9Nks-UNteXwtMLckxefI',
-  PROJECTS_FILE: path.join(__dirname, '../public/data/projects.json'),
-  IMAGES_DIR: path.join(__dirname, '../public/images')
+  PROJECTS_FILE: path.join(process.cwd(), 'public/data/projects.json'),
+  IMAGES_DIR: path.join(process.cwd(), 'public/images')
 };
+
+// ✅ ADDED: Root endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    service: 'Portfolio Telegram Bot',
+    message: 'Server is running successfully on Vercel!',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      root: 'GET /',
+      health: 'GET /health',
+      projects: 'GET /api/projects',
+      projectsCount: 'GET /api/projects/count',
+      botInfo: 'GET /bot-info',
+      webhook: 'POST /webhook/telegram'
+    }
+  });
+});
 
 // ✅ Create directories if they don't exist
 async function ensureDirectories() {
@@ -29,84 +47,49 @@ app.post('/webhook/telegram', async (req, res) => {
     const { message } = req.body;
     
     if (!message) {
-      return res.status(400).send('No message received');
+      return res.status(400).json({ error: 'No message received' });
     }
 
-    console.log('📨 Received message:', {
-      message_id: message.message_id,
-      has_photo: !!message.photo,
-      has_document: !!message.document,
-      has_text: !!message.text,
-      caption: message.caption
-    });
+    console.log('📨 Received message from:', message.from?.username || 'Unknown');
 
-    // Handle photos with captions
     if (message.photo && message.caption) {
       const largestPhoto = message.photo[message.photo.length - 1];
       await processTelegramProject(largestPhoto.file_id, message.caption, message.from, 'photo');
       await sendTelegramMessage(message.chat.id, '✅ Project received! Processing image and updating website...');
     }
-    // Handle documents (files) with captions
-    else if (message.document && message.caption) {
-      const document = message.document;
-      // Check if it's an image document
-      if (document.mime_type && document.mime_type.startsWith('image/')) {
-        await processTelegramProject(document.file_id, message.caption, message.from, 'document');
-        await sendTelegramMessage(message.chat.id, '✅ Project received! Processing image and updating website...');
-      } else {
-        await sendTelegramMessage(message.chat.id, '❌ Please send an image file (JPEG, PNG, etc.)');
-      }
+    else if (message.document && message.caption && message.document.mime_type?.startsWith('image/')) {
+      await processTelegramProject(message.document.file_id, message.caption, message.from, 'document');
+      await sendTelegramMessage(message.chat.id, '✅ Project received! Processing image and updating website...');
     }
-    // Handle text messages
-    else if (message.text) {
-      if (message.text === '/start') {
-        await sendTelegramMessage(message.chat.id, 
-          `👋 Welcome to Project Auto-Processor Bot!\n\n` +
-          `📤 To submit a project, send an image with a caption in this format:\n\n` +
-          `📝 Title: Your Project Title\n` +
-          `📄 Description: Your project description\n` +
-          `🔗 Live Demo: https://your-link.com or "Not Available"\n\n` +
-          `📎 You can send as a photo or as an image file!`
-        );
-      } else if (message.text.includes('NEW PROJECT SUBMISSION')) {
-        await sendTelegramMessage(message.chat.id,
-          `📋 Great! Now please send the image for your project with the details in the caption.\n\n` +
-          `Example caption:\n` +
-          `Title: My Awesome App\n` +
-          `Description: A revolutionary mobile application\n` +
-          `Live Demo: https://myapp.com`
-        );
-      } else {
-        await sendTelegramMessage(message.chat.id, 
-          `📸 Please send an image with caption containing:\n\n` +
-          `• Title: [Your project title]\n` +
-          `• Description: [Brief description]\n` +
-          `• Live Demo: [URL or "Not Available"]`
-        );
-      }
+    else if (message.text === '/start') {
+      await sendTelegramMessage(message.chat.id, 
+        `👋 Welcome to Project Auto-Processor Bot!\n\n` +
+        `📤 To submit a project, send an image with a caption in this format:\n\n` +
+        `📝 Title: Your Project Title\n` +
+        `📄 Description: Your project description\n` +
+        `🔗 Live Demo: https://your-link.com or "Not Available"\n\n` +
+        `📎 You can send as a photo or as an image file!`
+      );
     }
-    // Handle images without captions
-    else if (message.photo && !message.caption) {
+    else if (message.photo || message.document) {
       await sendTelegramMessage(message.chat.id,
-        `📝 Please add a caption to your image with project details:\n\n` +
+        `📝 Please add a caption with project details:\n\n` +
         `Title: [Project Title]\n` +
         `Description: [Project Description]\n` +
         `Live Demo: [URL or "Not Available"]`
       );
     }
-    else if (message.document && !message.caption) {
+    else {
       await sendTelegramMessage(message.chat.id,
-        `📝 Please add a caption to your file with project details:\n\n` +
-        `Title: [Project Title]\n` +
-        `Description: [Project Description]\n` +
-        `Live Demo: [URL or "Not Available"]`
+        `💬 Send /start for help\n\n` +
+        `Or send an image with project details in caption`
       );
     }
     
-    res.status(200).send('OK');
+    res.status(200).json({ status: 'OK', message: 'Webhook processed' });
   } catch (error) {
     console.error('Webhook error:', error);
-    res.status(500).send('Error processing webhook');
+    res.status(500).json({ error: 'Error processing webhook' });
   }
 });
 
@@ -157,8 +140,6 @@ async function downloadTelegramFile(fileId) {
     }
     
     const filePath = fileResponse.data.result.file_path;
-    console.log('📁 File path:', filePath);
-    
     const downloadUrl = `https://api.telegram.org/file/bot${CONFIG.TELEGRAM_TOKEN}/${filePath}`;
     const imageResponse = await axios.get(downloadUrl, { 
       responseType: 'arraybuffer',
@@ -186,8 +167,7 @@ async function convertAndSaveImage(imageBuffer) {
       withoutEnlargement: true 
     })
     .webp({ 
-      quality: 80,
-      effort: 6 
+      quality: 80
     })
     .toFile(outputPath);
   
@@ -195,7 +175,7 @@ async function convertAndSaveImage(imageBuffer) {
   return filename;
 }
 
-// ✅ Parse project info from caption (More flexible parsing)
+// ✅ Parse project info from caption
 function parseProjectCaption(caption) {
   const project = {
     title: 'New Project',
@@ -206,9 +186,6 @@ function parseProjectCaption(caption) {
   
   if (!caption) return project;
   
-  console.log('📝 Parsing caption:', caption);
-  
-  // More flexible parsing - handle different formats
   const titleMatch = caption.match(/(?:📝|Title:?)\s*([^\n]+)/i);
   const descMatch = caption.match(/(?:📄|Description:?)\s*([^\n]+)/i);
   const linkMatch = caption.match(/(?:🔗|Live Demo:?)\s*([^\n]+)/i);
@@ -217,29 +194,11 @@ function parseProjectCaption(caption) {
   if (descMatch) project.description = descMatch[1].trim();
   if (linkMatch) {
     const link = linkMatch[1].trim();
-    if (link && !link.includes('Not Available') && !link.includes('undefined')) {
+    if (link && !link.includes('Not Available')) {
       project.liveLink = link;
     }
   }
   
-  // Also try simple line-by-line parsing
-  const lines = caption.split('\n').filter(line => line.trim());
-  
-  lines.forEach(line => {
-    const trimmed = line.trim();
-    if (trimmed.startsWith('Title:') && !titleMatch) {
-      project.title = trimmed.replace('Title:', '').trim();
-    } else if (trimmed.startsWith('Description:') && !descMatch) {
-      project.description = trimmed.replace('Description:', '').trim();
-    } else if (trimmed.startsWith('Live Demo:') && !linkMatch) {
-      const link = trimmed.replace('Live Demo:', '').trim();
-      if (link && !link.includes('Not Available')) {
-        project.liveLink = link;
-      }
-    }
-  });
-  
-  console.log('📊 Parsed project:', project);
   return project;
 }
 
@@ -252,7 +211,6 @@ async function updateProjectsData(newProject) {
       const data = await fs.readFile(CONFIG.PROJECTS_FILE, 'utf8');
       projectsData = JSON.parse(data);
     } catch (error) {
-      // Initialize if file doesn't exist
       projectsData = { projects: [] };
     }
     
@@ -264,6 +222,7 @@ async function updateProjectsData(newProject) {
     };
     
     projectsData.projects.unshift(projectToAdd);
+    projectsData.lastUpdated = new Date().toISOString();
     
     await fs.writeFile(CONFIG.PROJECTS_FILE, JSON.stringify(projectsData, null, 2));
     console.log('📁 Projects data updated successfully');
@@ -279,8 +238,7 @@ async function sendTelegramMessage(chatId, text) {
   try {
     await axios.post(`https://api.telegram.org/bot${CONFIG.TELEGRAM_TOKEN}/sendMessage`, {
       chat_id: chatId,
-      text: text,
-      parse_mode: 'HTML'
+      text: text
     });
   } catch (error) {
     console.error('Error sending Telegram message:', error.message);
@@ -292,7 +250,8 @@ app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
     service: 'Telegram Auto-Processor',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -313,7 +272,6 @@ app.get('/api/projects', async (req, res) => {
     const data = JSON.parse(projectsData);
     res.json(data);
   } catch (error) {
-    console.log('Projects file not found, returning empty array');
     res.json({ 
       projects: [], 
       lastUpdated: new Date().toISOString() 
@@ -340,11 +298,31 @@ app.get('/api/projects/count', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`🤖 Telegram Auto-Processor running on port ${PORT}`);
-  console.log(`📍 Webhook URL: http://localhost:${PORT}/webhook/telegram`);
-  console.log(`🔑 Token: ${CONFIG.TELEGRAM_TOKEN ? '✓ Loaded' : '✗ Missing'}`);
-  console.log(`🏥 Health: http://localhost:${PORT}/health`);
-  console.log(`📊 Projects API: http://localhost:${PORT}/api/projects`);
+// ✅ ADDED: 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Endpoint not found',
+    availableEndpoints: [
+      'GET /',
+      'GET /health',
+      'GET /api/projects',
+      'GET /api/projects/count',
+      'GET /bot-info',
+      'POST /webhook/telegram'
+    ]
+  });
 });
+
+const PORT = process.env.PORT || 3001;
+
+// ✅ FIXED: Export for Vercel
+module.exports = app;
+
+// ✅ Only listen locally in development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🤖 Telegram Auto-Processor running on port ${PORT}`);
+    console.log(`📍 Webhook URL: http://localhost:${PORT}/webhook/telegram`);
+    console.log(`🔑 Token: ${CONFIG.TELEGRAM_TOKEN ? '✓ Loaded' : '✗ Missing'}`);
+  });
+}
