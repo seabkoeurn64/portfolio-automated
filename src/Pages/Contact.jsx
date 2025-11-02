@@ -14,17 +14,7 @@ const ContactPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentTime, setCurrentTime] = useState("");
 
-  useEffect(() => {
-    AOS.init({ once: true });
-    
-    // Update time every second
-    const timer = setInterval(() => {
-      setCurrentTime(getCambodiaTime());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
+  // Get Cambodia time function
   const getCambodiaTime = () => {
     return new Date().toLocaleString('en-KH', {
       timeZone: 'Asia/Phnom_Penh',
@@ -37,6 +27,18 @@ const ContactPage = () => {
       hour12: false
     });
   };
+
+  useEffect(() => {
+    AOS.init({ once: true });
+    
+    // Set initial time and update every second
+    setCurrentTime(getCambodiaTime());
+    const timer = setInterval(() => {
+      setCurrentTime(getCambodiaTime());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -124,7 +126,7 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="px-5 sm:px-5 lg:px-10">
+    <section id="Contact" className="px-5 sm:px-5 lg:px-10">
       {/* Title Section */}
       <div className="text-center lg:mt-20 mt-10 mb-2">
         <h2
@@ -132,7 +134,7 @@ const ContactPage = () => {
           data-aos-duration="1000"
           className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#6366f1] to-[#a855f7]"
         >
-          Contact Me
+        Contact Me
         </h2>
         <p
           data-aos="fade-up"
@@ -257,7 +259,7 @@ const ContactPage = () => {
 
             <div className="p-4 bg-amber-500/10 rounded-xl border border-amber-500/20 mb-4">
               <p className="text-amber-400 text-sm font-medium">
-                ⏰ Current Cambodia Time: {currentTime || getCambodiaTime()}
+                ⏰ Current Cambodia Time: {currentTime}
               </p>
             </div>
 
@@ -269,7 +271,7 @@ const ContactPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

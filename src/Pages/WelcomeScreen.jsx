@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Code2, Github, Globe, User } from 'lucide-react';
+import { Palette, User, MessageCircle } from 'lucide-react';
+import { Telegram } from '@mui/icons-material';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
@@ -83,7 +84,7 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
     exit: { y: -20, opacity: 0, transition: { duration: 0.4, ease: "easeInOut" } }
   };
 
-  const icons = [Code2, User, Github]; // safe icon array
+  const icons = [Palette, User, MessageCircle]; // Updated icons - MessageCircle for messaging/telegram
 
   return (
     <AnimatePresence>
@@ -112,7 +113,7 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
               <motion.div className="text-center mb-6 sm:mb-8 md:mb-12" variants={childVariants}>
                 <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold space-y-2 sm:space-y-4">
                   <div className="mb-2 sm:mb-4">
-                    {['Welcome', 'To', 'My'].map((word, i) => (
+                    {['Welcome', 'To', 'Koeurn'].map((word, i) => (
                       <span
                         key={i}
                         data-aos="fade-right"
@@ -124,7 +125,7 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
                     ))}
                   </div>
                   <div>
-                    {['Portfolio', 'Website'].map((word, i) => (
+                    {['Graphic', 'Design'].map((word, i) => (
                       <span
                         key={i}
                         data-aos="fade-up"
@@ -138,19 +139,19 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
                 </h1>
               </motion.div>
 
-              {/* Website Link */}
+              {/* Telegram Link */}
               <motion.div className="text-center" variants={childVariants} data-aos="fade-up" data-aos-delay="1200">
                 <a
-                  href="https://www.eki.my.id"
+                  href="https://t.me/koeurn65/"
                   className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-full relative group hover:scale-105 transition-transform duration-300"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-full blur-md group-hover:blur-lg transition-all duration-300" />
                   <div className="relative flex items-center gap-2 text-lg sm:text-xl md:text-2xl">
-                    <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
+                    <Telegram className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
                     <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                      <TypewriterEffect text="www.eki.my.id" />
+                      <TypewriterEffect text="koeurn65" />
                     </span>
                   </div>
                 </a>

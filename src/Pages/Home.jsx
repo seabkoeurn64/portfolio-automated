@@ -3,19 +3,20 @@ import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles } from "lucid
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import MySwiper from "../components/MySwiper";
-
 
 // --- Constants ---
-const WORDS = 
-["Poster Design",
-  "Logo Design", 
-  "Banner Design",
-  "Name Card Design",
-  "Flyer Design",
-  "Social Media Graphics",
-  "Branding Materials"];
-const TECH_STACK = ["Photoshop", "Alllustartor", "FIgma", "Canva"];
+const WORDS = [
+  "Poster Design",
+  "Logo Design", 
+  "Banner Design",
+  "Name Card Design",
+  "Flyer Design",
+  "Social Media Graphics",
+  "Branding Materials"
+];
+
+const TECH_STACK = ["Photoshop", "Illustrator", "Figma", "Canva"]; 
+
 const SOCIAL_LINKS = [
   { icon: Github, link: "https://github.com/seabkoeurn65" },
   { icon: Linkedin, link: "https://www.linkedin.com/in/koeurn65/" },
@@ -28,22 +29,21 @@ const PAUSE_DURATION = 2000;
 
 // --- Memoized Components ---
 const StatusBadge = memo(() => (
-  <div className="inline-block animate-float lg:mx-0" title="Creative Design">
+  <div className="inline-block animate-float mx-auto lg:mx-0" title="Designer" data-aos="fade-down" data-aos-duration="600">
     <div className="relative group">
       <div className="absolute -inset-0.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-full blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
       <div className="relative px-3 sm:px-4 py-2 rounded-full bg-black/40 backdrop-blur-xl border border-white/10">
         <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-transparent bg-clip-text sm:text-sm text-xs font-medium flex items-center">
           <Sparkles className="sm:w-4 sm:h-4 w-3 h-3 mr-2 text-blue-400" />
-          Creative Design
+          Designer
         </span>
       </div>
     </div>
   </div>
 ));
 
-
 const MainTitle = memo(() => (
-  <div className="space-y-2">
+  <div className="space-y-2 text-center lg:text-left" data-aos="fade-right" data-aos-duration="800">
     <h1 className="text-5xl sm:text-6xl md:text-6xl lg:text-6xl xl:text-7xl font-bold tracking-tight">
       <span className="relative inline-block">
         <span className="absolute -inset-2 bg-gradient-to-r from-[#6366f1] to-[#a855f7] blur-2xl opacity-20"></span>
@@ -63,8 +63,8 @@ const TechStackBadge = memo(({ tech }) => (
 ));
 
 const CTAButton = memo(({ href, text, icon: Icon }) => (
-  <a href={href}>
-    <button className="group relative w-[160px]">
+  <a href={href} className="w-full sm:w-auto">
+    <button className="group relative w-full sm:w-[160px]">
       <div className="absolute -inset-0.5 bg-gradient-to-r from-[#4f52c9] to-[#8644c5] rounded-xl opacity-50 blur-md group-hover:opacity-90 transition-all duration-700"></div>
       <div className="relative h-11 bg-[#030014] backdrop-blur-xl rounded-lg border border-white/10 leading-none overflow-hidden">
         <div className="absolute inset-0 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500 bg-gradient-to-r from-[#4f52c9]/20 to-[#8644c5]/20"></div>
@@ -97,7 +97,7 @@ const Home = () => {
   const [isHovering, setIsHovering] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detect mobile
+  // Detect mobile for conditional rendering/scaling
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
@@ -105,13 +105,13 @@ const Home = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // AOS init (desktop only)
+  // AOS initialization
   useEffect(() => {
-    if (!isMobile) {
-      AOS.init({ once: true, offset: 10 });
-      window.addEventListener("resize", () => AOS.refresh());
-    }
-  }, [isMobile]);
+    AOS.init({ once: true, offset: 50, duration: 800 });
+    AOS.refresh();
+    window.addEventListener("resize", () => AOS.refresh());
+    return () => window.removeEventListener("resize", () => AOS.refresh());
+  }, []);
 
   // Typing effect
   const handleTyping = useCallback(() => {
@@ -140,70 +140,124 @@ const Home = () => {
 
   // Lottie options
   const lottieOptions = {
-      src: "/animations/myAnimation.json",
+    src: "/animations/myAnimation.json",
     loop: true,
     autoplay: true,
     style: { width: "100%", height: "100%" },
-    className: `w-full h-full transition-all duration-500 ${
-      isHovering
-        ? "scale-[180%] sm:scale-[160%] md:scale-[150%] lg:scale-[145%] rotate-2"
-        : isMobile
-        ? "scale-100"
-        : "scale-[140%]"
-    }`,
+    className: `w-full h-full transition-all duration-500 
+      ${
+        isHovering
+          ? "scale-[180%] sm:scale-[160%] lg:scale-[145%] rotate-2"
+          : isMobile
+          ? "scale-[120%]" 
+          : "scale-[140%]" 
+      }`,
   };
 
   return (
-    <section className="min-h-screen bg-[#030014] px-[5%] sm:px-[5%] lg:px-[10%] flex items-center justify-center">
-      <div className="container mx-auto flex flex-col lg:flex-row items-center gap-12">
-        {/* Left Column */}
-        <div className="w-full lg:w-1/2 flex flex-col gap-6 text-left">
-          <StatusBadge />
-          <MainTitle />
-
-          {/* Typing Effect */}
-          <div className="h-8 flex items-center">
-            <span className="text-xl md:text-2xl bg-gradient-to-r from-gray-100 to-gray-300 bg-clip-text text-transparent font-light">{text}</span>
-            <span className="w-[3px] h-6 bg-gradient-to-t from-[#6366f1] to-[#a855f7] ml-1 animate-blink"></span>
+    <section id="Home" className="min-h-screen bg-[#030014] px-[5%] sm:px-[5%] lg:px-[10%] flex items-center justify-center pt-24 pb-12 lg:py-0">
+      <div className="container mx-auto">
+        {/* Mobile Layout: Stacked vertically with animation below header */}
+        <div className="lg:hidden flex flex-col items-center gap-8">
+          {/* Header Section with Status Badge and Title */}
+          <div className="w-full flex flex-col gap-6 text-center">
+            <StatusBadge />
+            <MainTitle />
           </div>
 
-          {/* Description */}
-          <p className="text-base md:text-lg text-gray-400 max-w-xl leading-relaxed font-light">
-           I craft <strong className="highlight">visually compelling</strong> and user-centered designs that solve real-world problems and amplify brand narratives through creative storytelling.
-   
-          </p>
-
-          {/* Tech Stack */}
-          <div className="flex flex-wrap gap-3">
-            {TECH_STACK.map((tech, index) => (
-              <TechStackBadge key={index} tech={tech} />
-            ))}
+          {/* Lottie Animation - Below header on mobile */}
+          <div
+            className="w-full h-[300px] sm:h-[400px] relative flex items-center justify-center"
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-[#6366f1]/10 to-[#a855f7]/10 rounded-3xl blur-3xl transition-all duration-700 ease-in-out"></div>
+            <DotLottieReact {...lottieOptions} />
           </div>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-row gap-3 mt-4">
-            <CTAButton href="#Portofolio" text="Projects" icon={ExternalLink} />
-            <CTAButton href="#Contact" text="Contact" icon={Mail} />
-          </div>
+          {/* Content Section */}
+          <div className="w-full flex flex-col gap-6 text-center">
+            {/* Typing Effect */}
+            <div className="h-8 flex items-center justify-center" data-aos="fade-up" data-aos-duration="1000">
+              <span className="text-xl md:text-2xl bg-gradient-to-r from-gray-100 to-gray-300 bg-clip-text text-transparent font-light">{text}</span>
+              <span className="w-[3px] h-6 bg-gradient-to-t from-[#6366f1] to-[#a855f7] ml-1 animate-blink"></span>
+            </div>
 
-          {/* Social Links */}
-          <div className="hidden sm:flex gap-4 mt-4">
-            {SOCIAL_LINKS.map((social, index) => (
-              <SocialLink key={index} {...social} />
-            ))}
+            {/* Description */}
+            <p className="text-base md:text-lg text-gray-400 max-w-xl mx-auto leading-relaxed font-light" data-aos="fade-up" data-aos-duration="1200">
+              I craft <strong className="highlight">visually compelling</strong> and user-centered designs that solve real-world problems and amplify brand narratives through creative storytelling.
+            </p>
+
+            {/* Tech Stack */}
+            <div className="flex flex-wrap gap-3 justify-center" data-aos="fade-up" data-aos-duration="1400">
+              {TECH_STACK.map((tech, index) => (
+                <TechStackBadge key={index} tech={tech} />
+              ))}
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 mt-4 justify-center" data-aos="fade-up" data-aos-duration="1600">
+              <CTAButton href="#Portofolio" text="Projects" icon={ExternalLink} />
+              <CTAButton href="#Contact" text="Contact" icon={Mail} />
+            </div>
+
+            {/* Social Links */}
+            <div className="flex gap-4 mt-4 justify-center" data-aos="fade-up" data-aos-duration="1800">
+              {SOCIAL_LINKS.map((social, index) => (
+                <SocialLink key={index} {...social} />
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Right Column - Lottie */}
-        <div
-          className="w-full lg:w-1/2 h-[600px] relative flex items-center justify-center mt-8 lg:mt-0"
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
-        >
-          {!isMobile && (
+        {/* Desktop Layout: Standard side-by-side */}
+        <div className="hidden lg:flex flex-row items-center gap-16">
+          {/* Left Column (Text Content) */}
+          <div className="w-1/2 flex flex-col gap-6 text-left">
+            <StatusBadge />
+            <MainTitle />
+
+            {/* Typing Effect */}
+            <div className="h-8 flex items-center justify-start" data-aos="fade-up" data-aos-duration="1000">
+              <span className="text-xl md:text-2xl bg-gradient-to-r from-gray-100 to-gray-300 bg-clip-text text-transparent font-light">{text}</span>
+              <span className="w-[3px] h-6 bg-gradient-to-t from-[#6366f1] to-[#a855f7] ml-1 animate-blink"></span>
+            </div>
+
+            {/* Description */}
+            <p className="text-base md:text-lg text-gray-400 max-w-xl leading-relaxed font-light" data-aos="fade-up" data-aos-duration="1200">
+              I craft <strong className="highlight">visually compelling</strong> and user-centered designs that solve real-world problems and amplify brand narratives through creative storytelling.
+            </p>
+
+            {/* Tech Stack */}
+            <div className="flex flex-wrap gap-3 justify-start" data-aos="fade-up" data-aos-duration="1400">
+              {TECH_STACK.map((tech, index) => (
+                <TechStackBadge key={index} tech={tech} />
+              ))}
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-row gap-3 mt-4 justify-start" data-aos="fade-up" data-aos-duration="1600">
+              <CTAButton href="#Portofolio" text="Projects" icon={ExternalLink} />
+              <CTAButton href="#Contact" text="Contact" icon={Mail} />
+            </div>
+
+            {/* Social Links */}
+            <div className="flex gap-4 mt-4 justify-start" data-aos="fade-up" data-aos-duration="1800">
+              {SOCIAL_LINKS.map((social, index) => (
+                <SocialLink key={index} {...social} />
+              ))}
+            </div>
+          </div>
+
+          {/* Right Column - Lottie */}
+          <div
+            className="w-1/2 h-[600px] relative flex items-center justify-center"
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-[#6366f1]/10 to-[#a855f7]/10 rounded-3xl blur-3xl transition-all duration-700 ease-in-out"></div>
-          )}
-          <DotLottieReact {...lottieOptions} />
+            <DotLottieReact {...lottieOptions} />
+          </div>
         </div>
       </div>
     </section>

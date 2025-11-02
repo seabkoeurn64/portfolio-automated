@@ -9,19 +9,22 @@ const Navbar = () => {
     const navItems = [
         { href: "#Home", label: "Home" },
         { href: "#About", label: "About" },
-        { href: "#Portofolio", label: "Portofolio" },
+        { href: "#Portofolio", label: "Portfolio" }, // Changed back to match your section ID
         { href: "#Contact", label: "Contact" },
     ];
 
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 20);
+            
+            const OFFSET_HEIGHT = 100;
+
             const sections = navItems.map(item => {
                 const section = document.querySelector(item.href);
                 if (section) {
                     return {
                         id: item.href.replace("#", ""),
-                        offset: section.offsetTop - 550,
+                        offset: section.offsetTop - OFFSET_HEIGHT, 
                         height: section.offsetHeight
                     };
                 }
@@ -42,7 +45,7 @@ const Navbar = () => {
         window.addEventListener("scroll", handleScroll);
         handleScroll();
         return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+    }, [navItems]); // Added navItems dependency
 
     useEffect(() => {
         if (isOpen) {
@@ -50,6 +53,10 @@ const Navbar = () => {
         } else {
             document.body.style.overflow = 'unset';
         }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
     }, [isOpen]);
 
     const scrollToSection = (e, href) => {
@@ -71,8 +78,8 @@ const Navbar = () => {
                 isOpen
                     ? "bg-[#030014]"
                     : scrolled
-                    ? "bg-[#030014]/50 backdrop-blur-xl"
-                    : "bg-transparent"
+                        ? "bg-[#030014]/50 backdrop-blur-xl"
+                        : "bg-transparent"
             }`}
         >
             <div className="mx-auto px-[5%] sm:px-[5%] lg:px-[10%]">
@@ -84,7 +91,7 @@ const Navbar = () => {
                             onClick={(e) => scrollToSection(e, "#Home")}
                             className="text-xl font-bold bg-gradient-to-r from-[#a855f7] to-[#6366f1] bg-clip-text text-transparent"
                         >
-                            Ekizr
+                            Portfolio
                         </a>
                     </div>
         
