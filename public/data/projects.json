@@ -1,0 +1,46 @@
+{
+  "projects": [
+    {
+      "id": 1,
+      "title": "E-Commerce Platform",
+      "description": "UI/UX Case Study: High-fidelity prototype and design system for a B2C e-commerce solution.",
+      "image": "/images/project1.webp",
+      "liveLink": null
+    },
+    {
+      "id": 2,
+      "title": "Mobile Fitness App",
+      "description": "UI/UX Case Study: Focus on user flows, dark mode implementation, and gamification.",
+      "image": "/images/project2.webp",
+      "liveLink": null
+    },
+    {
+      "id": 3,
+      "title": "AI Content Generator",
+      "description": "Design System: Wireframing and prototyping for an AI-powered content generation tool.",
+      "image": "/images/project3.webp",
+      "liveLink": null
+    },
+    {
+      "id": 4,
+      "title": "Task Management SaaS",
+      "description": "UX Research: Usability testing and redesign for a collaborative task management application.",
+      "image": "/images/project4.webp",
+      "liveLink": null
+    },
+    {
+      "id": 5,
+      "title": "Weather Dashboard",
+      "description": "Visual Design: Responsive design, data visualization, and micro-interactions for a weather app.",
+      "image": "/images/project5.webp",
+      "liveLink": null
+    },
+    {
+      "id": 6,
+      "title": "Social Analytics",
+      "description": "Information Architecture: Dashboard design for analyzing social media performance metrics.",
+      "image": "/images/project6.webp",
+      "liveLink": null
+    }
+  ]
+}
